@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 
 import com.lidroid.xutils.HttpUtils;
@@ -68,6 +70,7 @@ public class SplashActivity extends myActivity {
     };
     private String mVersionDes;
     private String mDownloadUrl;
+    private View rl_root;
 
     /**
      *  弹出对话框,提示用户更新
@@ -173,6 +176,13 @@ public class SplashActivity extends myActivity {
         //初始化UI
         initUI();
         initData();
+        initAnimation();
+    }
+
+    private void initAnimation() {
+        AlphaAnimation alphaAnimation = new AlphaAnimation(0, 1);
+        alphaAnimation.setDuration(3000);
+        rl_root.startAnimation(alphaAnimation);
     }
 
     private void initData() {
@@ -271,5 +281,6 @@ public class SplashActivity extends myActivity {
     * */
     private void initUI() {
         tv_version_name = (TextView) findViewById(R.id.tv_version_name);
+        rl_root = findViewById(R.id.rl_root);
     }
 }

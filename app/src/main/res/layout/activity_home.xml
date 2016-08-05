@@ -5,9 +5,38 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:text="功能列表"
+        style="@style/TitleStyle"
+        />
+
+    <!--跑马灯 要获取焦点-->
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="秋天秋天悄悄过去,留下小秘密aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"-->
+        <!--android:singleLine="true"-->
+        <!--android:padding="5sp"-->
+        <!--android:ellipsize="marquee"-->
+        <!--android:focusable="true"-->
+        <!--android:focusableInTouchMode="true"-->
+        <!--android:marqueeRepeatLimit="marquee_forever"/>-->
+    <com.my.mobilesafe.view.FocusTextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textColor="#000"
-        android:text="HomeActivity"/>
+        android:text="秋天秋天悄悄过去,留下小秘密aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        android:singleLine="true"
+        android:padding="5sp"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever">
+    </com.my.mobilesafe.view.FocusTextView>
+
+    <!--九宫格
+    verticalSpacing 制定内部条目的竖直距离
+    -->
+    <GridView
+        android:verticalSpacing="10dp"
+        android:id="@+id/gv_home"
+        android:numColumns="3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </LinearLayout>
