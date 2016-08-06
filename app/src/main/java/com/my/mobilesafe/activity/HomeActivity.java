@@ -1,16 +1,23 @@
 package com.my.mobilesafe.activity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.my.mobilesafe.R;
+import com.my.mobilesafe.utils.ConstantValue;
+import com.my.mobilesafe.utils.SpUtils;
+import com.my.mobilesafe.utils.ToastUtil;
 
 public class HomeActivity extends myActivity {
 
@@ -46,12 +53,102 @@ public class HomeActivity extends myActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (i){
                     case 0:
+                        //开启对话框
+                        showDialog();
                         break;
                     case 8:
                         Intent intent = new Intent(getApplicationContext(), SettingActivity.class);
                         startActivity(intent);
                         break;
                 }
+            }
+        });
+    }
+
+    private void showDialog() {
+        String psd = SpUtils.getString(this, ConstantValue.MOBILE_SAFE_PSD, "");
+        if(TextUtils.isEmpty(psd)){
+            showSetPsdDialog();
+        }else{
+            showConfirmPsdDialog();
+        }
+    }
+
+    /**
+     * 确认密码
+     */
+    private void showConfirmPsdDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog dialog = builder.create();
+        final View view = View.inflate(this, R.layout.dialog_confirm_psd, null);
+        dialog.setView(view);
+        dialog.show();
+        Button bt_submit = (Button) view.findViewById(R.id.bt_submit);
+        Button bt_cancel = (Button) view.findViewById(R.id.bt_cancel);
+        bt_submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditText et_confirm_psd = (EditText) view.findViewById(R.id.et_confirm_psd);
+                String confirmPsd = et_confirm_psd.getText().toString();
+                if(!TextUtils.isEmpty(confirmPsd)){
+                    if(SpUtils.getString(getApplicationContext(), ConstantValue.MOBILE_SAFE_PSD, "").equals(confirmPsd)){
+                        Intent intent = new Intent(getApplicationContext(), TestActivity.class);
+                        startActivity(intent);
+                        dialog.dismiss();
+                    }else{
+                        ToastUtil.show(getApplicationContext(), "密码错误");
+                    }
+                }else{
+                    ToastUtil.show(getApplicationContext(), "请输入密码");
+                }
+            }
+        });
+
+        bt_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    /**
+     * 设置密码
+     */
+    private void showSetPsdDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog dialog = builder.create();
+        final View view = View.inflate(this, R.layout.dialog_set_psd, null);
+        dialog.setView(view);
+        dialog.show();
+        Button bt_submit = (Button) view.findViewById(R.id.bt_submit);
+        Button bt_cancel = (Button) view.findViewById(R.id.bt_cancel);
+        bt_submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditText et_set_psd = (EditText) view.findViewById(R.id.et_set_psd);
+                EditText et_confirm_psd = (EditText) view.findViewById(R.id.et_confirm_psd);
+                String psd = et_set_psd.getText().toString();
+                String confirmPsd = et_confirm_psd.getText().toString();
+                if(!TextUtils.isEmpty(psd) && !TextUtils.isEmpty(confirmPsd)){
+                    if(psd.equals(confirmPsd)){
+                        Intent intent = new Intent(getApplicationContext(), TestActivity.class);
+                        startActivity(intent);
+                        dialog.dismiss();
+                        SpUtils.putString(getApplicationContext(), ConstantValue.MOBILE_SAFE_PSD, psd);
+                    }else{
+                        ToastUtil.show(getApplicationContext(), "确认密码错误");
+                    }
+                }else{
+                    ToastUtil.show(getApplicationContext(), "请输入密码");
+                }
+            }
+        });
+
+        bt_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
             }
         });
     }

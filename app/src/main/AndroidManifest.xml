@@ -20,7 +20,8 @@
         </activity>
         <activity android:name=".activity.HomeActivity" />
         <activity android:name=".activity.myActivity" />
-        <activity android:name=".activity.SettingActivity"></activity>
+        <activity android:name=".activity.SettingActivity"/>
+        <activity android:name=".activity.TestActivity"/>
     </application>
 
 </manifest>
