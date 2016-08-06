@@ -19,6 +19,8 @@ import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.my.mobilesafe.R;
+import com.my.mobilesafe.utils.ConstantValue;
+import com.my.mobilesafe.utils.SpUtils;
 import com.my.mobilesafe.utils.StreamUtil;
 import com.my.mobilesafe.utils.ToastUtil;
 
@@ -189,8 +191,12 @@ public class SplashActivity extends myActivity {
         tv_version_name.setText("版本名称:" + getVersionName());
         //检测是否有更新
         mLocalVersionCode= getVersionCode();
-        checkVersion();
 
+        if(SpUtils.getBoolean(getApplicationContext(), ConstantValue.OPEN_UPDATE, false)){
+            checkVersion();
+        }else{
+            mHandler.sendEmptyMessageDelayed(ENTER_HOME, 4000);
+        }
     }
 
     private void checkVersion() {
