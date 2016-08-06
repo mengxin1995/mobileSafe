@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.my.mobilesafe.R;
 import com.my.mobilesafe.utils.ConstantValue;
+import com.my.mobilesafe.utils.Md5Util;
 import com.my.mobilesafe.utils.SpUtils;
 import com.my.mobilesafe.utils.ToastUtil;
 
@@ -91,7 +92,7 @@ public class HomeActivity extends myActivity {
                 EditText et_confirm_psd = (EditText) view.findViewById(R.id.et_confirm_psd);
                 String confirmPsd = et_confirm_psd.getText().toString();
                 if(!TextUtils.isEmpty(confirmPsd)){
-                    if(SpUtils.getString(getApplicationContext(), ConstantValue.MOBILE_SAFE_PSD, "").equals(confirmPsd)){
+                    if(SpUtils.getString(getApplicationContext(), ConstantValue.MOBILE_SAFE_PSD, "").equals(Md5Util.encoder(confirmPsd, "zhangyuting"))){
                         Intent intent = new Intent(getApplicationContext(), TestActivity.class);
                         startActivity(intent);
                         dialog.dismiss();
@@ -135,7 +136,7 @@ public class HomeActivity extends myActivity {
                         Intent intent = new Intent(getApplicationContext(), TestActivity.class);
                         startActivity(intent);
                         dialog.dismiss();
-                        SpUtils.putString(getApplicationContext(), ConstantValue.MOBILE_SAFE_PSD, psd);
+                        SpUtils.putString(getApplicationContext(), ConstantValue.MOBILE_SAFE_PSD, Md5Util.encoder(psd, "zhangyuting"));
                     }else{
                         ToastUtil.show(getApplicationContext(), "确认密码错误");
                     }
