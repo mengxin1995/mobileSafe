@@ -1,8 +1,10 @@
 package com.my.mobilesafe.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -38,6 +40,20 @@ public class HomeActivity extends myActivity {
                 R.drawable.home_settings
         };
         gv_home.setAdapter(new  MyAdapter());
+        //注册九宫格单个条目的点击事件
+        gv_home.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (i){
+                    case 0:
+                        break;
+                    case 8:
+                        Intent intent = new Intent(getApplicationContext(), SettingActivity.class);
+                        startActivity(intent);
+                        break;
+                }
+            }
+        });
     }
 
     private void initUI() {

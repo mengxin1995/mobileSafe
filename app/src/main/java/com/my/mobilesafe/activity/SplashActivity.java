@@ -201,7 +201,7 @@ public class SplashActivity extends myActivity {
                 Message msg = Message.obtain();
                 long startTime = System.currentTimeMillis();
                 try {
-                    URL url = new URL("http://192.168.1.106/update.json");
+                    URL url = new URL("http://192.168.1.109/update.json");
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     //设置请求头
                     connection.setConnectTimeout(8000);
