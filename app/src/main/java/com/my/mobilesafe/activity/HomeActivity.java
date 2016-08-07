@@ -93,7 +93,7 @@ public class HomeActivity extends myActivity {
                 String confirmPsd = et_confirm_psd.getText().toString();
                 if(!TextUtils.isEmpty(confirmPsd)){
                     if(SpUtils.getString(getApplicationContext(), ConstantValue.MOBILE_SAFE_PSD, "").equals(Md5Util.encoder(confirmPsd, "zhangyuting"))){
-                        Intent intent = new Intent(getApplicationContext(), TestActivity.class);
+                        Intent intent = new Intent(getApplicationContext(), SetupOverActivity.class);
                         startActivity(intent);
                         dialog.dismiss();
                     }else{
@@ -133,7 +133,7 @@ public class HomeActivity extends myActivity {
                 String confirmPsd = et_confirm_psd.getText().toString();
                 if(!TextUtils.isEmpty(psd) && !TextUtils.isEmpty(confirmPsd)){
                     if(psd.equals(confirmPsd)){
-                        Intent intent = new Intent(getApplicationContext(), TestActivity.class);
+                        Intent intent = new Intent(getApplicationContext(), SetupOverActivity.class);
                         startActivity(intent);
                         dialog.dismiss();
                         SpUtils.putString(getApplicationContext(), ConstantValue.MOBILE_SAFE_PSD, Md5Util.encoder(psd, "zhangyuting"));
