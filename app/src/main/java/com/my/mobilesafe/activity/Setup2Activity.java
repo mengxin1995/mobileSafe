@@ -13,7 +13,7 @@ import com.my.mobilesafe.utils.SpUtils;
 import com.my.mobilesafe.utils.ToastUtil;
 import com.my.mobilesafe.view.SettingItemView;
 
-public class Setup2Activity extends myActivity {
+public class Setup2Activity extends BaseSetupActivity {
 
     private SettingItemView siv_sim_bound;
 
@@ -23,6 +23,27 @@ public class Setup2Activity extends myActivity {
         setContentView(R.layout.activity_setup2);
 
         initUI();
+    }
+
+    @Override
+    protected void showNextPage() {
+        String simNumber = SpUtils.getString(getApplicationContext(), ConstantValue.SIM_NUMBER, "");
+        if(!TextUtils.isEmpty(simNumber)) {
+            Intent intent = new Intent(this, Setup3Activity.class);
+            startActivity(intent);
+
+            finish();
+        }else{
+            ToastUtil.show(getApplicationContext(), "请绑定sim卡");
+        }
+    }
+
+    @Override
+    protected void showPrePage() {
+        Intent intent = new Intent(this, Setup1Activity.class);
+        startActivity(intent);
+
+        finish();
     }
 
     private void initUI() {
@@ -49,24 +70,5 @@ public class Setup2Activity extends myActivity {
                 }
             }
         });
-    }
-
-    public void nextPage(View view) {
-        String simNumber = SpUtils.getString(getApplicationContext(), ConstantValue.SIM_NUMBER, "");
-        if(!TextUtils.isEmpty(simNumber)) {
-            Intent intent = new Intent(this, Setup3Activity.class);
-            startActivity(intent);
-
-            finish();
-        }else{
-            ToastUtil.show(getApplicationContext(), "请绑定sim卡");
-        }
-    }
-
-    public void prePage(View view) {
-        Intent intent = new Intent(this, Setup1Activity.class);
-        startActivity(intent);
-
-        finish();
     }
 }

@@ -12,7 +12,7 @@ import com.my.mobilesafe.utils.ConstantValue;
 import com.my.mobilesafe.utils.SpUtils;
 import com.my.mobilesafe.utils.ToastUtil;
 
-public class Setup3Activity extends myActivity {
+public class Setup3Activity extends BaseSetupActivity {
 
     private EditText et_phone_number;
     private Button bt_select_number;
@@ -23,6 +23,29 @@ public class Setup3Activity extends myActivity {
         setContentView(R.layout.activity_setup3);
 
         intiUI();
+    }
+
+    @Override
+    protected void showNextPage() {
+        String phone = et_phone_number.getText().toString();
+//        String contact_phone = SpUtils.getString(this, ConstantValue.CONTACT_PHONE, "");
+        if(!TextUtils.isEmpty(phone)) {
+            Intent intent = new Intent(this, Setup4Activity.class);
+            startActivity(intent);
+
+            finish();
+            SpUtils.putString(this, ConstantValue.CONTACT_PHONE, phone);
+        }else{
+            ToastUtil.show(this, "请输入电话号码");
+        }
+    }
+
+    @Override
+    protected void showPrePage() {
+        Intent intent = new Intent(this, Setup2Activity.class);
+        startActivity(intent);
+
+        finish();
     }
 
     private void intiUI() {
@@ -52,26 +75,5 @@ public class Setup3Activity extends myActivity {
             SpUtils.putString(this, ConstantValue.CONTACT_PHONE, phone);
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    public void nextPage(View view) {
-        String phone = et_phone_number.getText().toString();
-//        String contact_phone = SpUtils.getString(this, ConstantValue.CONTACT_PHONE, "");
-        if(!TextUtils.isEmpty(phone)) {
-            Intent intent = new Intent(this, Setup4Activity.class);
-            startActivity(intent);
-
-            finish();
-            SpUtils.putString(this, ConstantValue.CONTACT_PHONE, phone);
-        }else{
-            ToastUtil.show(this, "请输入电话号码");
-        }
-    }
-
-    public void prePage(View view) {
-        Intent intent = new Intent(this, Setup2Activity.class);
-        startActivity(intent);
-
-        finish();
     }
 }
