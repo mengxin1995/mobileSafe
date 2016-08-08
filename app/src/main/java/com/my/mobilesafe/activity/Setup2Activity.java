@@ -33,6 +33,7 @@ public class Setup2Activity extends BaseSetupActivity {
             startActivity(intent);
 
             finish();
+            overridePendingTransition(R.anim.next_in_anim, R.anim.next_out_anim);
         }else{
             ToastUtil.show(getApplicationContext(), "请绑定sim卡");
         }
@@ -44,6 +45,7 @@ public class Setup2Activity extends BaseSetupActivity {
         startActivity(intent);
 
         finish();
+        overridePendingTransition(R.anim.pre_in_anim, R.anim.pre_out_anim);
     }
 
     private void initUI() {
