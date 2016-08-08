@@ -1,6 +1,7 @@
 package com.my.mobilesafe.activity;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,9 +29,11 @@ public class ContactListActivity extends AppCompatActivity {
     private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            lv_contact.setAdapter(new MyAdapter());
+            mAdapter = new MyAdapter();
+            lv_contact.setAdapter(mAdapter);
         }
     };
+    private MyAdapter mAdapter;
 
     private class MyAdapter extends BaseAdapter{
 
@@ -92,7 +96,7 @@ public class ContactListActivity extends AppCompatActivity {
                         String type = indexCursor.getString(1);
                         if(type.equals("vnd.android.cursor.item/phone_v2")){
                             if(!TextUtils.isEmpty(data)) {
-                                hashMap.put("phone", "data");
+                                hashMap.put("phone", data);
                             }
                         }else if(type.equals("vnd.android.cursor.item/name")){
                             if(!TextUtils.isEmpty(data)) {
@@ -112,5 +116,19 @@ public class ContactListActivity extends AppCompatActivity {
 
     private void initUI() {
         lv_contact = (ListView) findViewById(R.id.lv_contact);
+        lv_contact.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if(mAdapter != null){
+                    HashMap<String, String> hashMap = mAdapter.getItem(i);
+                    String phone = hashMap.get("phone");
+                    Intent intent = new Intent();
+                    intent.putExtra("phone", phone);
+                    setResult(0, intent);
+
+                    finish();
+                }
+            }
+        });
     }
 }
