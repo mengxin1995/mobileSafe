@@ -28,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -73,6 +74,7 @@ public class SplashActivity extends myActivity {
     private String mVersionDes;
     private String mDownloadUrl;
     private View rl_root;
+
 
     /**
      *  弹出对话框,提示用户更新
@@ -179,6 +181,46 @@ public class SplashActivity extends myActivity {
         initUI();
         initData();
         initAnimation();
+        //创建数据库
+        initDB();
+    }
+
+    private void initDB() {
+        initAddressDB("address.db");
+    }
+
+    private void initAddressDB(String dbName) {
+        File files = getFilesDir();
+        File file = new File(files, dbName);
+        if(file.exists()){
+            return ;
+        }
+       InputStream stream = null;
+       FileOutputStream fos = null;
+        try {
+            stream = getAssets().open(dbName);
+            fos = new FileOutputStream(file);
+            byte[] bs = new byte[1024];
+            int temp = -1;
+            while( (temp = stream.read(bs) ) != -1){
+                fos.write(bs, 0, temp);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            if(stream != null && fos!=null){
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private void initAnimation() {
