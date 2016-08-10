@@ -2,6 +2,7 @@ package com.my.mobilesafe.activity;
 
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -20,6 +21,7 @@ public class ToastLocationActivity extends myActivity {
 	private WindowManager mWM;
 	private int mScreenHeight;
 	private int mScreenWidth;
+	private long[] mHits = new long[2];
 	
 
 	@Override
@@ -63,8 +65,28 @@ public class ToastLocationActivity extends myActivity {
 			bt_bottom.setVisibility(View.VISIBLE);
 			bt_top.setVisibility(View.INVISIBLE);
 		}
-		
-		
+
+		iv_drag.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
+				mHits[mHits.length-1] = SystemClock.uptimeMillis();
+				if(mHits[mHits.length-1]-mHits[0]<500){
+					//满足双击事件后,调用代码
+					int left = mScreenWidth/2 - iv_drag.getWidth()/2;
+					int top = mScreenHeight/2 - iv_drag.getHeight()/2;
+					int right = mScreenWidth/2+iv_drag.getWidth()/2;
+					int bottom = mScreenHeight/2+iv_drag.getHeight()/2;
+
+					//控件按以上规则显示
+					iv_drag.layout(left, top, right, bottom);
+
+					//存储最终位置
+					SpUtils.putInt(getApplicationContext(), ConstantValue.LOCATION_X, iv_drag.getLeft());
+					SpUtils.putInt(getApplicationContext(), ConstantValue.LOCATION_Y, iv_drag.getTop());
+				}
+			}
+		});
 		
 		//监听某一个控件的拖拽过程(按下(1),移动(多次),抬起(1))
 		iv_drag.setOnTouchListener(new OnTouchListener() {
@@ -135,7 +157,7 @@ public class ToastLocationActivity extends myActivity {
 					break;
 				}
 				//在当前的情况下返回false不响应事件,返回true才会响应事件
-				return true;
+				return false;
 			}
 		});
 	}
