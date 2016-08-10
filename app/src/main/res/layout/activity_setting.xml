@@ -20,6 +20,7 @@
     </com.my.mobilesafe.view.SettingItemView>
 
     <com.my.mobilesafe.view.SettingItemView
+        android:id="@+id/siv_address"
         xmlns:mobilesafe="http://schemas.android.com/apk/res/com.my.mobilesafe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,5 +28,16 @@
         mobilesafe:desoff="归属地设置已关闭"
         mobilesafe:deson="归属地设置已开启">
     </com.my.mobilesafe.view.SettingItemView>
+
+    <com.my.mobilesafe.view.SettingClickView
+        android:id="@+id/scv_toast_style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </com.my.mobilesafe.view.SettingClickView>
+    <com.my.mobilesafe.view.SettingClickView
+        android:id="@+id/scv_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </com.my.mobilesafe.view.SettingClickView>
 
 </LinearLayout>

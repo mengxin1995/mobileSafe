@@ -17,7 +17,7 @@ public class SetupOverActivity extends myActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        boolean setup_over = SpUtils.getBoolean(this, ConstantValue.SETUPOVER, false);
+        boolean setup_over = SpUtils.getBoolean(this, ConstantValue.SETUP_OVER, false);
         if(setup_over) {
             setContentView(R.layout.activity_setup_over);
 

@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
         android:allowBackup="true"
@@ -37,6 +39,7 @@
         <activity android:name=".activity.ContactListActivity" />
         <activity android:name=".activity.AToolActivity" />
         <activity android:name=".activity.QueryAddressActivity" />
+        <activity android:name=".activity.ToastLocationActivity" />
 
         <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
@@ -54,7 +57,11 @@
         <service
             android:name=".service.LocationService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"/>
+        <service
+            android:name=".service.AddressService"
+            android:enabled="true"
+            android:exported="true"/>
     </application>
 
 </manifest>

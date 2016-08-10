@@ -27,7 +27,7 @@ public class Setup4Activity extends BaseSetupActivity {
         if(open_security) {
             Intent intent = new Intent(this, SetupOverActivity.class);
             startActivity(intent);
-            SpUtils.putBoolean(this, ConstantValue.SETUPOVER, true);
+            SpUtils.putBoolean(this, ConstantValue.SETUP_OVER, true);
             finish();
             overridePendingTransition(R.anim.next_in_anim, R.anim.next_out_anim);
         }else{
