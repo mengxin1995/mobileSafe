@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ContactListActivity extends AppCompatActivity {
+public class ContactListActivity extends myActivity {
 
     private ListView lv_contact;
     private List<HashMap<String, String>> contactList =  new ArrayList<HashMap<String, String>>();

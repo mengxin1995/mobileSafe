@@ -2,8 +2,10 @@ package com.my.mobilesafe.service;
 
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.IBinder;
@@ -11,6 +13,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -35,7 +38,10 @@ public class AddressService extends Service {
 		};
 	};
 	private int[] mDrawableIds;
-	
+	private int mScreenHeight;
+	private int mScreenWidth;
+	private InnerOutCallReceiver mInnerOutCallReceiver;
+
 	@Override
 	public void onCreate() {
 		//第一次开启服务以后,就需要去管理吐司的显示
@@ -47,8 +53,26 @@ public class AddressService extends Service {
 		mTM.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 		//获取窗体对象
 		mWM = (WindowManager) getSystemService(WINDOW_SERVICE);
-		
+		mScreenHeight = mWM.getDefaultDisplay().getHeight();
+		mScreenWidth = mWM.getDefaultDisplay().getWidth();
+
+		//监听播出电话的广播过滤条件(权限)
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);
+		//创建广播接受者
+		mInnerOutCallReceiver = new InnerOutCallReceiver();
+		registerReceiver(mInnerOutCallReceiver, intentFilter);
 		super.onCreate();
+	}
+
+	class InnerOutCallReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			//接收到此广播后,需要显示自定义的吐司,显示播出归属地号码
+			//获取播出电话号码的字符串
+			String phone = getResultData();
+			showToast(phone);
+		}
 	}
 	
 	class MyPhoneStateListener extends PhoneStateListener{
@@ -99,7 +123,65 @@ public class AddressService extends Service {
         //吐司显示效果(吐司布局文件),xml-->view(吐司),将吐司挂在到windowManager窗体上
         mViewToast = View.inflate(this, R.layout.toast_view, null);
         tv_toast = (TextView) mViewToast.findViewById(R.id.tv_toast);
-        
+
+		mViewToast.setOnTouchListener(new View.OnTouchListener() {
+			private int startX;
+			private int startY;
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getAction()) {
+					case MotionEvent.ACTION_DOWN:
+						startX = (int) event.getRawX();
+						startY = (int) event.getRawY();
+						break;
+					case MotionEvent.ACTION_MOVE:
+						int moveX = (int) event.getRawX();
+						int moveY = (int) event.getRawY();
+
+						int disX = moveX - startX;
+						int disY = moveY - startY;
+
+						params.x = params.x + disX;
+						params.y = params.y + disY;
+
+						//容错处理
+						if (params.x < 0) {
+							params.x = 0;
+						}
+
+						if (params.y < 0) {
+							params.y = 0;
+						}
+
+						if (params.x > mScreenWidth - mViewToast.getWidth()) {
+							params.x = mScreenWidth - mViewToast.getWidth();
+						}
+
+						if (params.y > mScreenHeight - mViewToast.getHeight() - 22) {
+							params.y = mScreenHeight - mViewToast.getHeight() - 22;
+						}
+
+						//告知窗体吐司需要按照手势的移动,去做位置的更新
+						mWM.updateViewLayout(mViewToast, params);
+
+						startX = (int) event.getRawX();
+						startY = (int) event.getRawY();
+
+						break;
+					case MotionEvent.ACTION_UP:
+						SpUtils.putInt(getApplicationContext(), ConstantValue.LOCATION_X, params.x);
+						SpUtils.putInt(getApplicationContext(), ConstantValue.LOCATION_Y, params.y);
+						break;
+				}
+				//true 响应拖拽触发的事件
+				return true;
+			}
+		});
+
+        params.x = SpUtils.getInt(getApplicationContext(), ConstantValue.LOCATION_X, 0);
+        params.y = SpUtils.getInt(getApplicationContext(), ConstantValue.LOCATION_Y, 0);
+
         //从sp中获取色值文字的索引,匹配图片,用作展示
         mDrawableIds = new int[]{
         		R.drawable.call_locate_white,

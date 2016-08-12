@@ -57,6 +57,10 @@ public class HomeActivity extends myActivity {
                         //开启对话框
                         showDialog();
                         break;
+                    case 1:
+                        //跳转到通信卫士模块
+                        startActivity(new Intent(getApplicationContext(), BlackNumberActivity.class));
+                        break;
                     case 7:
                         startActivity(new Intent(getApplication(), AToolActivity.class));
                         break;
