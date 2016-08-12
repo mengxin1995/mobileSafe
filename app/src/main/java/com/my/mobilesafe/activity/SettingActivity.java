@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.my.mobilesafe.R;
 import com.my.mobilesafe.service.AddressService;
+import com.my.mobilesafe.service.BlackNumberService;
 import com.my.mobilesafe.utils.ConstantValue;
 import com.my.mobilesafe.utils.ServiceUtil;
 import com.my.mobilesafe.utils.SpUtils;
@@ -28,6 +29,31 @@ public class SettingActivity extends myActivity {
         initAddress();
         initToastStyle();
         initLocation();
+        initBlacknumber();
+    }
+
+    /**
+     * 拦截黑名单短信电话
+     */
+    private void initBlacknumber() {
+        final SettingItemView siv_blacknumber = (SettingItemView) findViewById(R.id.siv_blacknumber);
+        boolean isRunning = ServiceUtil.isRunning(this, ".service.BlackNumberService");
+        siv_blacknumber.setCheck(isRunning);
+
+        siv_blacknumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isCheck = siv_blacknumber.isCheck();
+                siv_blacknumber.setCheck(!isCheck);
+                if(!isCheck){
+                    //开启服务
+                    startService(new Intent(getApplicationContext(), BlackNumberService.class));
+                }else{
+                    //关闭服务
+                    stopService(new Intent(getApplicationContext(), BlackNumberService.class));
+                }
+            }
+        });
     }
 
     /**
@@ -106,7 +132,7 @@ public class SettingActivity extends myActivity {
     private void initAddress() {
         final SettingItemView siv_address = (SettingItemView) findViewById(R.id.siv_address);
         //对服务是否开的状态做显示
-        boolean isRunning = ServiceUtil.isRunning(this, "com.itheima.mobilesafe.service.AddressService");
+        boolean isRunning = ServiceUtil.isRunning(this, ".service.AddressService");
         siv_address.setCheck(isRunning);
         //点击过程中,状态(是否开启电话号码归属地)的切换过程
         siv_address.setOnClickListener(new View.OnClickListener() {
