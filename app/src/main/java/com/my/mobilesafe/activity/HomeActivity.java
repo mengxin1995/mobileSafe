@@ -61,6 +61,10 @@ public class HomeActivity extends myActivity {
                         //跳转到通信卫士模块
                         startActivity(new Intent(getApplicationContext(), BlackNumberActivity.class));
                         break;
+                    case 2:
+                        //跳转到通信卫士模块
+                        startActivity(new Intent(getApplicationContext(), AppManagerActivity.class));
+                        break;
                     case 7:
                         startActivity(new Intent(getApplication(), AToolActivity.class));
                         break;
