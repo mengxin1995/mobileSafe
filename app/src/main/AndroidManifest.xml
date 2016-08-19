@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.my.mobilesafe">
-
+    <!-- android:theme="@android:style/Theme.Light.NoTitleBar" -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -9,9 +9,10 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- //获取准确GPS坐标的权限 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- //获取粗略坐标的权限(网络定位时使用) -->
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- 在窗体上挂在view的权限 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <!-- 去电广播监听的权限 -->
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
@@ -21,6 +22,9 @@
     <uses-permission android:name="android.permission.WRITE_CALL_LOG"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.WRITE_SMS"/>
+    <!-- 杀死后台进程的权限 -->
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
+
 
     <application
         android:allowBackup="true"
@@ -50,6 +54,7 @@
         <activity android:name=".activity.ToastLocationActivity" />
         <activity android:name=".activity.BlackNumberActivity" />
         <activity android:name=".activity.AppManagerActivity" />
+        <activity android:name=".activity.ProcessManagerActivity" />
 
         <receiver android:name=".receiver.BootReceiver">
             <intent-filter>

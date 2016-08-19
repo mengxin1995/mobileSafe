@@ -1,28 +1,42 @@
 package com.my.mobilesafe.activity;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.StatFs;
 import android.text.format.Formatter;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.my.mobilesafe.R;
 import com.my.mobilesafe.db.domain.AppInfo;
 import com.my.mobilesafe.engine.AppInfoProvider;
+import com.my.mobilesafe.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AppManagerActivity extends Activity {
+public class AppManagerActivity extends Activity implements OnClickListener {
 	private List<AppInfo> mAppInfoList;
 	
 	private ListView lv_app_list;
@@ -30,6 +44,8 @@ public class AppManagerActivity extends Activity {
 	
 	private List<AppInfo> mSystemList;
 	private List<AppInfo> mCustomerList;
+	
+	private AppInfo mAppInfo;
 	
 	private Handler mHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
@@ -43,6 +59,8 @@ public class AppManagerActivity extends Activity {
 	};
 
 	private TextView tv_des;
+
+	private PopupWindow mPopupWindow;
 	
 	class MyAdapter extends BaseAdapter{
 		
@@ -157,25 +175,6 @@ public class AppManagerActivity extends Activity {
 	private void initList() {
 		lv_app_list = (ListView) findViewById(R.id.lv_app_list);
 		tv_des = (TextView) findViewById(R.id.tv_des);
-		
-		new Thread(){
-			public void run() {
-				mAppInfoList = AppInfoProvider.getAppInfoList(getApplicationContext());
-				mSystemList = new ArrayList<AppInfo>();
-				mCustomerList = new ArrayList<AppInfo>();
-				for (AppInfo appInfo : mAppInfoList) {
-					if(appInfo.isSystem){
-						//系统应用
-						mSystemList.add(appInfo);
-					}else{
-						//用户应用
-						mCustomerList.add(appInfo);
-					}
-				}
-				mHandler.sendEmptyMessage(0);
-			};
-		}.start();
-		
 		lv_app_list.setOnScrollListener(new OnScrollListener() {
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -202,6 +201,67 @@ public class AppManagerActivity extends Activity {
 				
 			}
 		});
+		
+		lv_app_list.setOnItemClickListener(new OnItemClickListener() {
+			//view点中条目指向的view对象
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+				if(position == 0 || position == mCustomerList.size()+1){
+					return;
+				}else{
+					if(position<mCustomerList.size()+1){
+						mAppInfo = mCustomerList.get(position-1);
+					}else{
+						//返回系统应用对应条目的对象
+						mAppInfo = mSystemList.get(position - mCustomerList.size()-2);
+					}
+					showPopupWindow(view);
+				}
+			}
+		});
+	}
+
+	protected void showPopupWindow(View view) {
+		View popupView = View.inflate(this, R.layout.popupwindow_layout, null);
+		
+		TextView tv_uninstall = (TextView) popupView.findViewById(R.id.tv_uninstall);
+		TextView tv_start = (TextView) popupView.findViewById(R.id.tv_start);
+		TextView tv_share = (TextView) popupView.findViewById(R.id.tv_share);
+		
+		tv_uninstall.setOnClickListener(this);
+		tv_start.setOnClickListener(this);
+		tv_share.setOnClickListener(this);
+		
+		//透明动画(透明--->不透明)
+		AlphaAnimation alphaAnimation = new AlphaAnimation(0, 1);
+		alphaAnimation.setDuration(1000);
+		alphaAnimation.setFillAfter(true);
+		
+		//缩放动画
+		ScaleAnimation scaleAnimation = new ScaleAnimation(
+				0, 1, 
+				0, 1, 
+				Animation.RELATIVE_TO_SELF, 0.5f, 
+				Animation.RELATIVE_TO_SELF, 0.5f);
+		scaleAnimation.setDuration(1000);
+		alphaAnimation.setFillAfter(true);
+		//动画集合Set
+		AnimationSet animationSet = new AnimationSet(true);
+		//添加两个动画
+		animationSet.addAnimation(alphaAnimation);
+		animationSet.addAnimation(scaleAnimation);
+		
+		//1,创建窗体对象,指定宽高
+		
+		mPopupWindow = new PopupWindow(popupView, 
+				LinearLayout.LayoutParams.WRAP_CONTENT, 
+				LinearLayout.LayoutParams.WRAP_CONTENT, true);
+		//2,设置一个透明背景(new ColorDrawable())
+		mPopupWindow.setBackgroundDrawable(new ColorDrawable());
+		//3,指定窗体位置
+		mPopupWindow.showAsDropDown(view, 50, -view.getHeight());
+		//4,popupView执行动画
+		popupView.startAnimation(animationSet);
 	}
 
 	private void initTitle() {
@@ -241,5 +301,74 @@ public class AppManagerActivity extends Activity {
 //		2147483647bytes/1024 =  2096128 KB
 //		2096128KB/1024 = 2047	MB
 //		2047MB = 2G
+	}
+	
+	@Override
+	protected void onResume() {
+		//重新获取数据
+		getData();
+		super.onResume();
+	}
+
+	private void getData() {
+		new Thread(){
+			public void run() {
+				mAppInfoList = AppInfoProvider.getAppInfoList(getApplicationContext());
+				mSystemList = new ArrayList<AppInfo>();
+				mCustomerList = new ArrayList<AppInfo>();
+				for (AppInfo appInfo : mAppInfoList) {
+					if(appInfo.isSystem){
+						//系统应用
+						mSystemList.add(appInfo);
+					}else{
+						//用户应用
+						mCustomerList.add(appInfo);
+					}
+				}
+				mHandler.sendEmptyMessage(0);
+			};
+		}.start();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.tv_uninstall:
+			if(mAppInfo.isSystem){
+				ToastUtil.show(getApplicationContext(), "此应用不能卸载");
+			}else{
+				Intent intent = new Intent("android.intent.action.DELETE");
+				intent.addCategory("android.intent.category.DEFAULT");
+				intent.setData(Uri.parse("package:"+mAppInfo.getPackageName()));
+				startActivity(intent);
+			}
+			break;
+		case R.id.tv_start:
+			//通过桌面去启动指定包名应用
+			PackageManager pm = getPackageManager();
+			//通过Launch开启制定包名的意图,去开启应用
+			Intent launchIntentForPackage = pm.getLaunchIntentForPackage(mAppInfo.getPackageName());
+			if(launchIntentForPackage!=null){
+				startActivity(launchIntentForPackage);
+			}else{
+				ToastUtil.show(getApplicationContext(), "此应用不能被开启");
+			}
+			break;
+			//分享(第三方(微信,新浪,腾讯)平台),智慧北京
+			//拍照-->分享:将图片上传到微信服务器,微信提供接口api,推广
+			//查看朋友圈的时候:从服务器上获取数据(你上传的图片)
+		case R.id.tv_share:
+			//通过短信应用,向外发送短信
+			Intent intent = new Intent(Intent.ACTION_SEND);
+			intent.putExtra(Intent.EXTRA_TEXT,"分享一个应用,应用名称为"+mAppInfo.getName());
+			intent.setType("text/plain");
+			startActivity(intent);
+			break;
+		}
+		
+		//点击了窗体后消失窗体
+		if(mPopupWindow!=null){
+			mPopupWindow.dismiss();
+		}
 	}
 }
