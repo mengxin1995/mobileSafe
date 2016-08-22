@@ -1,6 +1,7 @@
 package com.my.mobilesafe.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.Formatter;
@@ -21,12 +22,12 @@ import android.widget.TextView;
 import com.my.mobilesafe.R;
 import com.my.mobilesafe.db.domain.ProcessInfo;
 import com.my.mobilesafe.engine.ProcessInfoProvider;
+import com.my.mobilesafe.utils.ConstantValue;
+import com.my.mobilesafe.utils.SpUtils;
 import com.my.mobilesafe.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-
 
 public class ProcessManagerActivity extends Activity implements OnClickListener {
 	private TextView tv_process_count,tv_memory_info,tv_des;
@@ -34,18 +35,18 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 	private Button bt_select_all,bt_select_reverse,bt_clear,bt_setting;
 	private int mProcessCount;
 	private List<ProcessInfo> mProcessInfoList;
-
+	
 	private ArrayList<ProcessInfo> mSystemList;
 	private ArrayList<ProcessInfo> mCustomerList;
 	private MyAdapter mAdapter;
-
+	
 	private ProcessInfo mProcessInfo;
-
+	
 	private Handler mHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 			mAdapter = new MyAdapter();
 			lv_process_list.setAdapter(mAdapter);
-
+			
 			if(tv_des!=null && mCustomerList!=null){
 				tv_des.setText("用户应用("+mCustomerList.size()+")");
 			}
@@ -53,14 +54,14 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 	};
 	private long mAvailSpace;
 	private String mStrTotalSpace;
-
+	
 	class MyAdapter extends BaseAdapter{
 		//获取数据适配器中条目类型的总数,修改成两种(纯文本,图片+文字)
 		@Override
 		public int getViewTypeCount() {
 			return super.getViewTypeCount()+1;
 		}
-
+		
 		//指定索引指向的条目类型,条目类型状态码指定(0(复用系统),1)
 		@Override
 		public int getItemViewType(int position) {
@@ -72,11 +73,15 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 				return 1;
 			}
 		}
-
+		
 		//listView中添加两个描述条目
 		@Override
 		public int getCount() {
-			return mCustomerList.size()+mSystemList.size()+2;
+			if(SpUtils.getBoolean(getApplicationContext(), ConstantValue.SHOW_SYSTEM, false)){
+				return mCustomerList.size()+mSystemList.size()+2;
+			}else{
+				return mCustomerList.size()+1;
+			}
 		}
 
 		@Override
@@ -101,7 +106,7 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			int type = getItemViewType(position);
-
+			
 			if(type == 0){
 				//展示灰色纯文本条目
 				ViewTitleHolder holder = null;
@@ -137,28 +142,28 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 				holder.tv_name.setText(getItem(position).name);
 				String strSize = Formatter.formatFileSize(getApplicationContext(), getItem(position).memSize);
 				holder.tv_memory_info.setText(strSize);
-
+				
 				//本进程不能被选中,所以先将checkbox隐藏掉
 				if(getItem(position).packageName.equals(getPackageName())){
 					holder.cb_box.setVisibility(View.GONE);
 				}else{
 					holder.cb_box.setVisibility(View.VISIBLE);
 				}
-
+				
 				holder.cb_box.setChecked(getItem(position).isCheck);
-
+				
 				return convertView;
 			}
 		}
 	}
-
+	
 	static class ViewHolder{
 		ImageView iv_icon;
 		TextView tv_name;
 		TextView tv_memory_info;
 		CheckBox cb_box;
 	}
-
+	
 	static class ViewTitleHolder{
 		TextView tv_title;
 	}
@@ -167,7 +172,7 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_process_manager);
-
+		
 		initUI();
 		initTitleData();
 		initListData();
@@ -176,14 +181,14 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 	private void initListData() {
 		getData();
 	}
-
+	
 	private void getData() {
 		new Thread(){
 			public void run() {
 				mProcessInfoList = ProcessInfoProvider.getProcessInfo(getApplicationContext());
 				mSystemList = new ArrayList<ProcessInfo>();
 				mCustomerList = new ArrayList<ProcessInfo>();
-
+				
 				for (ProcessInfo info : mProcessInfoList) {
 					if(info.isSystem){
 						//系统进程
@@ -201,44 +206,44 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 	private void initTitleData() {
 		mProcessCount = ProcessInfoProvider.getProcessCount(this);
 		tv_process_count.setText("进程总数:"+mProcessCount);
-
+		
 		//获取可用内存大小,并且格式化
 		mAvailSpace = ProcessInfoProvider.getAvailSpace(this);
 		String strAvailSpace = Formatter.formatFileSize(this, mAvailSpace);
-
+		
 		//总运行内存大小,并且格式化
 		long totalSpace = ProcessInfoProvider.getTotalSpace(this);
 		mStrTotalSpace = Formatter.formatFileSize(this, totalSpace);
-
+		
 		tv_memory_info.setText("剩余/总共:"+strAvailSpace+"/"+mStrTotalSpace);
 	}
 
 	private void initUI() {
 		tv_process_count = (TextView) findViewById(R.id.tv_process_count);
 		tv_memory_info = (TextView) findViewById(R.id.tv_memory_info);
-
+		
 		tv_des = (TextView) findViewById(R.id.tv_des);
-
+	
 		lv_process_list = (ListView) findViewById(R.id.lv_process_list);
 
 		bt_select_all = (Button) findViewById(R.id.bt_select_all);
 		bt_select_reverse = (Button) findViewById(R.id.bt_select_reverse);
 		bt_clear = (Button)  findViewById(R.id.bt_clear);
 		bt_setting = (Button) findViewById(R.id.bt_setting);
-
+		
 		bt_select_all.setOnClickListener(this);
 		bt_select_reverse.setOnClickListener(this);
 		bt_clear.setOnClickListener(this);
 		bt_setting.setOnClickListener(this);
-
+		
 		lv_process_list.setOnScrollListener(new OnScrollListener() {
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+				
 			}
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem,
-								 int visibleItemCount, int totalItemCount) {
+					int visibleItemCount, int totalItemCount) {
 				//滚动过程中调用方法
 				//AbsListView中view就是listView对象
 				//firstVisibleItem第一个可见条目索引值
@@ -253,10 +258,10 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 						tv_des.setText("用户进程("+mCustomerList.size()+")");
 					}
 				}
-
+				
 			}
 		});
-
+		
 		lv_process_list.setOnItemClickListener(new OnItemClickListener() {
 			//view选中条目指向的view对象
 			@Override
@@ -284,25 +289,39 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 				}
 			}
 		});
-
+		
 	}
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-			case R.id.bt_select_all:
-				selectAll();
-				break;
-			case R.id.bt_select_reverse:
-				selectReverse();
-				break;
-			case R.id.bt_clear:
-				clearAll();
-				break;
-			case R.id.bt_setting:
-
-				break;
+		case R.id.bt_select_all:
+			selectAll();
+			break;
+		case R.id.bt_select_reverse:
+			selectReverse();
+			break;
+		case R.id.bt_clear:
+			clearAll();
+			break;
+		case R.id.bt_setting:
+			setting();
+			break;
 		}
+	}
+
+	private void setting() {
+		Intent intent = new Intent(this, ProcessSettingActivity.class);
+		startActivityForResult(intent, 0);
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		//通知数据适配器刷新
+		if(mAdapter!=null){
+			mAdapter.notifyDataSetChanged();
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	/**
@@ -323,7 +342,7 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 				killProcessList.add(processInfo);
 			}
 		}
-
+		
 		for(ProcessInfo processInfo:mSystemList){
 			if(processInfo.isCheck){
 				//4,记录需要杀死的系统进程
@@ -337,13 +356,13 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 			if(mCustomerList.contains(processInfo)){
 				mCustomerList.remove(processInfo);
 			}
-
+			
 			if(mSystemList.contains(processInfo)){
 				mSystemList.remove(processInfo);
 			}
 			//7,杀死记录在killProcessList中的进程
 			ProcessInfoProvider.killProcess(this,processInfo);
-
+			
 			//记录释放空间的总大小
 			totalReleaseSpace += processInfo.memSize;
 		}
@@ -361,7 +380,7 @@ public class ProcessManagerActivity extends Activity implements OnClickListener 
 		//12,通过吐司告知用户,释放了多少空间,杀死了几个进程,
 		String totalRelease = Formatter.formatFileSize(this, totalReleaseSpace);
 //		ToastUtil.show(getApplicationContext(), "杀死了"+killProcessList.size()+"个进程,释放了"+totalRelease+"空间");
-
+		
 //		jni  java--c   c---java
 		//占位符指定数据%d代表整数占位符,%s代表字符串占位符
 		ToastUtil.show(getApplicationContext(),

@@ -27,10 +27,10 @@ public class ProcessInfoProvider {
 		//3,返回集合的总数
 		return runningAppProcesses.size();
 	}
-
-
+	
+	
 	/**
-	 * @param ctx
+	 * @param ctx	
 	 * @return 返回可用的内存数	bytes
 	 */
 	public static long getAvailSpace(Context ctx){
@@ -42,11 +42,11 @@ public class ProcessInfoProvider {
 		am.getMemoryInfo(memoryInfo);
 		//4,获取memoryInfo中相应可用内存大小
 		return memoryInfo.availMem;
-	}
-
-
+	}   
+	
+	
 	/**
-	 * @param ctx
+	 * @param ctx	
 	 * @return 返回总的内存数	单位为bytes 返回0说明异常
 	 */
 	public static long getTotalSpace(Context ctx){
@@ -58,7 +58,7 @@ public class ProcessInfoProvider {
 		am.getMemoryInfo(memoryInfo);
 		//4,获取memoryInfo中相应可用内存大小
 		return memoryInfo.totalMem;*/
-
+		
 		//内存大小写入文件中,读取proc/meminfo文件,读取第一行,获取数字字符,转换成bytes返回
 		FileReader fileReader  = null;
 		BufferedReader bufferedReader = null;
@@ -89,8 +89,8 @@ public class ProcessInfoProvider {
 			}
 		}
 		return 0;
-	}
-
+	}  
+	
 	/**
 	 * @param ctx	上下文环境
 	 * @return		当前手机正在运行的进程的相关信息
@@ -103,7 +103,7 @@ public class ProcessInfoProvider {
 		PackageManager pm = ctx.getPackageManager();
 		//2,获取正在运行的进程的集合
 		List<RunningAppProcessInfo> runningAppProcesses = am.getRunningAppProcesses();
-
+	
 		//3,循环遍历上诉集合,获取进程相关信息(名称,包名,图标,使用内存大小,是否为系统进程(状态机))
 		for (RunningAppProcessInfo info : runningAppProcesses) {
 			ProcessInfo processInfo = new ProcessInfo();
@@ -115,7 +115,7 @@ public class ProcessInfoProvider {
 			android.os.Debug.MemoryInfo memoryInfo = processMemoryInfo[0];
 			//7,获取已使用的大小
 			processInfo.memSize = memoryInfo.getTotalPrivateDirty()*1024;
-
+			
 			try {
 				ApplicationInfo applicationInfo = pm.getApplicationInfo(processInfo.packageName, 0);
 				//8,获取应用的名称
@@ -151,5 +151,26 @@ public class ProcessInfoProvider {
 		ActivityManager am = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
 		//2,杀死指定包名进程(权限)
 		am.killBackgroundProcesses(processInfo.packageName);
+	}
+
+
+	/**
+	 * 杀死所有进程
+	 * @param ctx	上下文环境
+	 */
+	public static void killAll(Context ctx) {
+		//1,获取activityManager
+		ActivityManager am = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+		//2,获取正在运行进程的集合
+		List<RunningAppProcessInfo> runningAppProcesses = am.getRunningAppProcesses();
+		//3,循环遍历所有的进程,并且杀死
+		for (RunningAppProcessInfo info : runningAppProcesses) {
+			//4,除了手机卫士以外,其他的进程都需要去杀死
+			if(info.processName.equals(ctx.getPackageName())){
+				//如果匹配上了手机卫士,则需要跳出本次循环,进行下一次寻,继续杀死进程
+				continue;
+			}
+			am.killBackgroundProcesses(info.processName);
+		}
 	}
 }
