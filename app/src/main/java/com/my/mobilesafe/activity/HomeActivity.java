@@ -69,6 +69,10 @@ public class HomeActivity extends myActivity {
                         //跳转到通信卫士模块
                         startActivity(new Intent(getApplicationContext(), ProcessManagerActivity.class));
                         break;
+                    case 5:
+                        //跳转到通信卫士模块
+                        startActivity(new Intent(getApplicationContext(), AnitVirusActivity.class));
+                        break;
                     case 7:
                         startActivity(new Intent(getApplication(), AToolActivity.class));
                         break;
