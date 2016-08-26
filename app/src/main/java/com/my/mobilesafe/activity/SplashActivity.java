@@ -25,6 +25,8 @@ import com.my.mobilesafe.utils.SpUtils;
 import com.my.mobilesafe.utils.StreamUtil;
 import com.my.mobilesafe.utils.ToastUtil;
 
+import net.youmi.android.AdManager;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -177,7 +179,8 @@ public class SplashActivity extends myActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
+        //广告
+        AdManager.getInstance(this).init("2f2c31cc7b078bd0", "bbb521418b4757dd", true);
         //初始化UI
         initUI();
         initData();
